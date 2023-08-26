@@ -1,4 +1,5 @@
 const Card = require('../models/card');
+const { default: mongoose } = require('mongoose');
 
 module.exports.getCards = (req, res) => {
   Card.find({})
@@ -27,10 +28,15 @@ module.exports.createCard = (req, res) => {
 
 module.exports.deleteCardById = (req, res) => {
 
-  Card.findByIdAndRemove(req.params.cardId)
-    .then(card => res.send({ data: card }))
+  Card.findByIdAndRemove(req.params.cardId,{ new: true })
+    .then(card => {
+      if(!card) {
+        res.status(404).send({ message: 'Карточки с таким Id не существует' })
+      } 
+      res.send({ data: card })
+    })
     .catch((err) => {
-      if (err instanceof mongoose.Error.DocumentNotFoundError) {
+      if (err instanceof mongoose.Error.CastError) {
         res.status(404).send({ message: 'Карточки с таким Id не существует' })
       }
       return res.status(500).send({ message: 'Произошла ошибка' })
@@ -38,24 +44,24 @@ module.exports.deleteCardById = (req, res) => {
 }; 
 
 module.exports.likeCard = (req, res) => {
-  Card.findByIdAndUpdate(req.params.cardId)
-  .then ({ $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-  { new: true })
+  Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
+  .then (card => {
+    if(!card) {
+      res.status(404).send({ message: 'Карточки с таким Id не существует' })
+    } 
+    res.send({ data: card })
+  })
   .catch((err) => {
     if (err instanceof mongoose.Error.CastError) {
       res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятия лайка' })
-    }
-    if (err instanceof mongoose.Error.DocumentNotFoundError) {
-      res.status(404).send({ message: 'Карточки с таким Id не существует' })
     }
     return res.status(500).send({ message: 'Произошла ошибка' })
   });  
 }
 
 module.exports.dislikeCard = (req, res) => {
-  Card.findByIdAndUpdate(req.params.cardId)
-  .then ({ $pull: { likes: req.user._id } }, // убрать _id из массива
-  { new: true })
+  Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } },{ new: true })
+  .then (card => res.send({ data: card }))
   .catch((err) => {
     if (err instanceof mongoose.Error.CastError) {
       res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятия лайка' })
