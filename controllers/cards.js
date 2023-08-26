@@ -31,13 +31,13 @@ module.exports.deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId,{ new: true })
     .then(card => {
       if(!card) {
-        res.status(400).send({ message: 'Карточки с таким Id не существует' })
+        res.status(404).send({ message: 'Карточки с таким Id не существует' })
       } 
       res.send({ data: card })
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        res.status(404).send({ message: 'Карточки с таким Id не существует' })
+        res.status(400).send({ message: 'Карточки с таким Id не существует' })
       }
       return res.status(500).send({ message: 'Произошла ошибка' })
     });
