@@ -32,6 +32,15 @@ app.use('/', updateUserRouter);
 app.use('/', getUserByIdRrouter);
 app.use('/', updateUserAvatarRouter);
 
+app.use('/', getCardsRouter);
+app.use('/', createCardRrouter);
+app.use('/', deleteCardByIdRouter);
+app.use('/', likeCardRouter);
+app.use('/', dislikeCardRouter);
+
+app.use('*', (req, res) => {
+  res.status(404).send({message:'Страница не найдена'})
+});
 
 
 
