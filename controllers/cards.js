@@ -31,7 +31,7 @@ module.exports.deleteCardById = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId,{ new: true })
     .then(card => {
       if(!card) {
-        res.status(404).send({ message: 'Карточки с таким Id не существует' })
+        res.status(400).send({ message: 'Карточки с таким Id не существует' })
       } 
       res.send({ data: card })
     })
@@ -61,7 +61,12 @@ module.exports.likeCard = (req, res) => {
 
 module.exports.dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } },{ new: true })
-  .then (card => res.send({ data: card }))
+  .then (card => {
+    if(!card) {
+      res.status(404).send({ message: 'Карточки с таким Id не существует' })
+    } 
+    res.send({ data: card })
+  })
   .catch((err) => {
     if (err instanceof mongoose.Error.CastError) {
       res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятия лайка' })
