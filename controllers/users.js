@@ -13,13 +13,17 @@ module.exports.getUsers = (req, res) => {
 }; 
 
 module.exports.getUserById = (req, res) => {
-
+  console.log(req.params.userId)
   User.findById(req.params.userId)
-    .then(user => res.send(user))
+    .then(user => {
+      if(!user) {
+        res.status(404).send({ message: 'Пользователя с таким Id не существует' })
+      }        
+      res.send(user)})
     .catch((err) => {
       console.log(err);
       if (err instanceof mongoose.Error.CastError) {
-        res.status(404).send({ message: 'Пользователя с таким Id не существует' })
+        res.status(400).send({ message: 'Пользователя с таким Id не существует' })
       }
       return res.status(500).send({ message: 'Произошла ошибка' })
     });
@@ -41,7 +45,7 @@ module.exports.createUser = (req, res) => {
 module.exports.updateUser = (req, res) => {
   const { name, about } = req.body;
 
-  User.findByIdAndUpdate(req.user._id, { name: name, about: about })
+  User.findByIdAndUpdate(req.user._id, { name: name, about: about }, { runValidators: true, new: true})
     .then(user => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -58,7 +62,7 @@ module.exports.updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
   console.log(avatar);
 
-  User.findByIdAndUpdate(req.user._id, { avatar: avatar })
+  User.findByIdAndUpdate(req.user._id, { avatar: avatar },{ runValidators: true, new: true})
     .then(user => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
