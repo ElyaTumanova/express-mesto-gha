@@ -13,7 +13,6 @@ module.exports.getUsers = (req, res) => {
 }; 
 
 module.exports.getUserById = (req, res) => {
-  console.log(req.params.userId)
   User.findById(req.params.userId)
     .then(user => {
       if(!user) {
@@ -21,7 +20,6 @@ module.exports.getUserById = (req, res) => {
       }        
       res.send(user)})
     .catch((err) => {
-      console.log(err);
       if (err instanceof mongoose.Error.CastError) {
         res.status(400).send({ message: 'Пользователя с таким Id не существует' })
       }
@@ -60,7 +58,6 @@ module.exports.updateUser = (req, res) => {
 
 module.exports.updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
-  console.log(avatar);
 
   User.findByIdAndUpdate(req.user._id, { avatar: avatar },{ runValidators: true, new: true})
     .then(user => res.send({ data: user }))
