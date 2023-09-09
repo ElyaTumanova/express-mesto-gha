@@ -13,7 +13,7 @@ module.exports.getCards = (req, res, next) => {
         return next(BadRequestError());
         //res.status(400).send({ message: 'Несуществующий Id' })
       }
-      return next(ServerError());
+      throw new ServerError();
       //return res.status(500).send({ message: 'На сервере произошла ошибка' })
     });
 }; 
@@ -29,7 +29,7 @@ module.exports.createCard = (req, res, next) => {
         return next(BadRequestError());
         //res.status(400).send({ message: 'Переданы некорректные данные при создании карточки' })
       }
-      return next(ServerError());
+      throw new ServerError();
       //return res.status(500).send({ message: 'На сервере произошла ошибка' })
     });
 }; 
@@ -58,7 +58,7 @@ module.exports.deleteCardById = (req, res, next) => {
         return next(BadRequestError());
         //res.status(400).send({ message: 'Карточки с таким Id не существует' })
       }
-      return next(ServerError());
+      throw new ServerError();
       //return res.status(500).send({ message: 'На сервере произошла ошибка' })
     });
 }; 
@@ -77,7 +77,7 @@ module.exports.likeCard = (req, res, next) => {
       return next(BadRequestError());
       //res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятия лайка' })
     }
-    return next(ServerError());
+    throw new ServerError();
     //return res.status(500).send({ message: 'На сервере произошла ошибка' })
   });  
 }
@@ -100,7 +100,7 @@ module.exports.dislikeCard = (req, res, next) => {
       return next(NotFoundError());
       //res.status(404).send({ message: 'Карточки с таким Id не существует' })
     }
-    return next(ServerError());
+    throw new ServerError();
     //return res.status(500).send({ message: 'На сервере произошла ошибка' })
   });    
 }
