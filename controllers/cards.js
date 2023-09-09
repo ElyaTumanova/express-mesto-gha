@@ -29,18 +29,22 @@ module.exports.createCard = (req, res) => {
 module.exports.deleteCardById = (req, res) => {
   Card.findById(req.params.cardId)
   .then((card)=>{
-    if(card.owner.toString()!==req.user._id){
-      res.status(400).send({ message: 'Нелья удалить чужую карточку' })
+    console.log('card');
+    if(!card) {
+      res.status(404).send({ message: 'Карточки с таким Id не существует' })
     } else {
-      Card.findByIdAndRemove(req.params.cardId,{ new: true })
-      .then(card => {
-        if(!card) {
-          res.status(404).send({ message: 'Карточки с таким Id не существует' })
-        } 
-        res.send({ data: card })
-      })
-    }})
+      if(card.owner.toString()!==req.user._id){
+        res.status(403).send({ message: 'Нелья удалить чужую карточку' })
+      } else {
+        Card.findByIdAndRemove(req.params.cardId,{ new: true })
+        .then(card => {
+          res.send({ data: card })
+        })
+      }
+    }
+    })
     .catch((err) => {
+      console.log (err);
       if (err instanceof mongoose.Error.CastError) {
         res.status(400).send({ message: 'Карточки с таким Id не существует' })
       }

@@ -41,11 +41,6 @@ module.exports.createUser = (req, res) => {
   const { name, about, avatar, email, password } = req.body;
   console.log('signup') 
 
-  //   if (err.code === 11000) {
-  //   // Обработка ошибки
-  //   return res.status(409).send({ message: 'Пользователь с таким email уже зарегистрирован' })
-  // } 
-
   User.findOne({email})
     .then(user => {
     console.log (user);
@@ -114,12 +109,13 @@ module.exports.login = (req, res) => {
         maxAge: 3600000,
         httpOnly: true
       })
+      res.send({ data: user })
       .end();
     })    
     .catch((err) => {
       // возвращаем ошибку аутентификации
       res
-        .status(200)
+        .status(401)
         .send({ message: err.message });
     });
 }
