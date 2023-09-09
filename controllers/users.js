@@ -38,16 +38,29 @@ module.exports.getUserById = (req, res) => {
 }; 
 
 module.exports.createUser = (req, res) => {
-  console.log('hi');
-  const { name, about, avatar, email, password } = req.body; 
+  const { name, about, avatar, email, password } = req.body;
+  console.log('signup') 
+
+  //   if (err.code === 11000) {
+  //   // Обработка ошибки
+  //   return res.status(409).send({ message: 'Пользователь с таким email уже зарегистрирован' })
+  // } 
+
+  User.findOne({email})
+    .then(user => {
+    console.log (user);
+    if(user) {
+      console.log('hi')
+      return res.status(409).send({ message: 'Пользователь с таким email уже зарегистрирован' })
+    }})
 
   bcrypt.hash(password, 10)
     .then(hash => User.create({ name, about, avatar, email, password:hash })
     )
-    .then(user => res.send({ data: user }))
+    .then(user => res.send({ name, about, avatar, email }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' })
+        return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' })
       }
       return res.status(500).send({ message: 'На сервере произошла ошибка' })
     });
@@ -86,6 +99,7 @@ module.exports.updateUserAvatar = (req, res) => {
 }
 
 module.exports.login = (req, res) => {
+  console.log('login')
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
@@ -105,7 +119,7 @@ module.exports.login = (req, res) => {
     .catch((err) => {
       // возвращаем ошибку аутентификации
       res
-        .status(401)
+        .status(200)
         .send({ message: err.message });
     });
 }

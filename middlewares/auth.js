@@ -1,13 +1,16 @@
 const jwt = require('jsonwebtoken');
 
 module.exports = (req, res, next) => {
+  console.log ('auth');
   const { cookie } = req.headers;
 
   if (!cookie || !cookie.startsWith('jwt=')) {
-    const err = new Error('Необходима авторизация'); 
-    err.statusCode = 401;
-    next(err);
-
+    // const err = new Error('Необходима авторизация'); 
+    // err.statusCode = 401;
+    // next(err);
+    return res
+      .status(401)
+      .send({ message: 'Необходима авторизация' });
   }
 
   const token = cookie.replace('jwt=', '');
@@ -16,13 +19,13 @@ module.exports = (req, res, next) => {
   try {
     payload = jwt.verify(token, 'some-secret-key');
   } catch (e) {
-    const err = new Error('Необходима авторизация'); 
-    err.statusCode = 401;
+    // const err = new Error('Необходима авторизация'); 
+    // err.statusCode = 401;
 
-    next(err);
-    // return res
-    //   .status(401)
-    //   .send({ message: 'Необходима авторизация' });
+    // next(err);
+    return res
+      .status(401)
+      .send({ message: 'Необходима авторизация' });
   }
 
   req.user = payload; // записываем пейлоуд в объект запроса

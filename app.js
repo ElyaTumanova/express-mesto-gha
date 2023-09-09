@@ -28,9 +28,7 @@ app.post('/signin', loginRouter);
 
 app.post('/signup', createUserRouter);
 
-
 app.use(auth);
-
 
 app.use('/', createUserRouter);
 app.use('/', getUsersRouter);
