@@ -10,10 +10,10 @@ module.exports.getCards = (req, res, next) => {
     .then(card => res.send({ data: card }))
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        return next(BadRequestError());
+        return next(new BadRequestError());
         //res.status(400).send({ message: 'Несуществующий Id' })
       }
-      throw new ServerError();
+      return next (new ServerError());
       //return res.status(500).send({ message: 'На сервере произошла ошибка' })
     });
 }; 
@@ -26,10 +26,10 @@ module.exports.createCard = (req, res, next) => {
     .catch((err) => {
       console.log (err)
       if (err.name === 'ValidationError') {
-        return next(BadRequestError());
+        return next(new BadRequestError());
         //res.status(400).send({ message: 'Переданы некорректные данные при создании карточки' })
       }
-      throw new ServerError();
+      return next (new ServerError());
       //return res.status(500).send({ message: 'На сервере произошла ошибка' })
     });
 }; 
@@ -39,7 +39,7 @@ module.exports.deleteCardById = (req, res, next) => {
   .then((card)=>{
     console.log('card');
     if(!card) {
-      return next(NotFoundError());
+      return next(new NotFoundError());
       //res.status(404).send({ message: 'Карточки с таким Id не существует' })
     } else {
       if(card.owner.toString()!==req.user._id){
@@ -55,10 +55,10 @@ module.exports.deleteCardById = (req, res, next) => {
     .catch((err) => {
       console.log (err);
       if (err instanceof mongoose.Error.CastError) {
-        return next(BadRequestError());
+        return next(new BadRequestError());
         //res.status(400).send({ message: 'Карточки с таким Id не существует' })
       }
-      throw new ServerError();
+      return next (new ServerError());
       //return res.status(500).send({ message: 'На сервере произошла ошибка' })
     });
 }; 
@@ -67,14 +67,14 @@ module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
   .then (card => {
     if(!card) {
-      return next(NotFoundError());
+      return next(new NotFoundError());
       //res.status(404).send({ message: 'Карточки с таким Id не существует' })
     } 
     res.send({ data: card })
   })
   .catch((err) => {
     if (err instanceof mongoose.Error.CastError) {
-      return next(BadRequestError());
+      return next(new BadRequestError());
       //res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятия лайка' })
     }
     return next (new ServerError());
@@ -86,7 +86,7 @@ module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } },{ new: true })
   .then (card => {
     if(!card) {
-      return next(NotFoundError());
+      return next(new NotFoundError());
       //res.status(404).send({ message: 'Карточки с таким Id не существует' })
     } 
     res.send({ data: card })
@@ -97,10 +97,10 @@ module.exports.dislikeCard = (req, res, next) => {
       //res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятия лайка' })
     }
     if (err instanceof mongoose.Error.DocumentNotFoundError) {
-      return next(NotFoundError());
+      return next(new NotFoundError());
       //res.status(404).send({ message: 'Карточки с таким Id не существует' })
     }
-    throw new ServerError();
+    return next (new ServerError());
     //return res.status(500).send({ message: 'На сервере произошла ошибка11' })
   });    
 }

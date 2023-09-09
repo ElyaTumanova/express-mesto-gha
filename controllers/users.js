@@ -14,7 +14,7 @@ module.exports.getUsers = (req, res, next) => {
         return next(new BadRequestError());
     //res.status(400).send({ message: 'Несуществующий Id' })
       }
-      throw new ServerError();
+      return next (new ServerError());
       //return res.status(500).send({ message: 'На сервере произошла ошибка' })
     });
 }; 
@@ -33,7 +33,7 @@ module.exports.getUserById = (req, res, next) => {
         return next(new BadRequestError())
         //return res.status(400).send({ message: 'Пользователя с таким Id не существует2' })
       }
-      throw new ServerError();
+      return next (new ServerError());
       //return res.status(500).send({ message: 'На сервере произошла ошибка3333' })
     });
 }; 
@@ -58,7 +58,7 @@ module.exports.createUser = (req, res, next) => {
         return next(new BadRequestError());
         //return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' })
       }
-      throw new ServerError();
+      return next (new ServerError());
       //return res.status(500).send({ message: 'На сервере произошла ошибка' })
     });
 }; 
@@ -77,7 +77,7 @@ module.exports.updateUser = (req, res, next) => {
         return next(new NotFoundError())
         //res.status(404).send({ message: 'Пользователя с таким Id не существует' })
       }
-      throw new ServerError();
+      return next (new ServerError());
       //return res.status(500).send({ message: 'На сервере произошла ошибка' })
     });
 }
@@ -96,7 +96,7 @@ module.exports.updateUserAvatar = (req, res, next) => {
         return next(new NotFoundError())
         //res.status(404).send({ message: 'Пользователя с таким Id не существует' })
       }
-      throw new ServerError();
+      return next (new ServerError());
       //return res.status(500).send({ message: 'На сервере произошла ошибка' })
     });
 }
@@ -142,7 +142,7 @@ module.exports.getMyUser = (req, res, next) => {
         return next(new BadRequestError());
         //res.status(400).send({ message: 'Пользователя с таким Id не существует' })
       }
-      throw new ServerError();
+      return next (new ServerError());
       //return res.status(500).send({ message: 'На сервере произошла ошибка' })
     });
 };
