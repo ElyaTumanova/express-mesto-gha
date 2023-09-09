@@ -7,12 +7,37 @@ const { getCards, createCard,deleteCardById,likeCard,dislikeCard } = require('..
 
 getCardsRouter.get('/cards', getCards);
 
-createCardRrouter.post('/cards', createCard); 
+createCardRrouter.post('/cards', 
+celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    link: Joi.string().required(),
+  }),
+}),
+createCard); 
 
-deleteCardByIdRouter.delete('/cards/:cardId', deleteCardById); 
+deleteCardByIdRouter.delete('/cards/:cardId', 
+celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().alphanum().length(24)
+  }),
+}),
+deleteCardById); 
 
-likeCardRouter.put('/cards/:cardId/likes', likeCard);
+likeCardRouter.put('/cards/:cardId/likes', 
+celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().alphanum().length(24)
+  }),
+}),
+likeCard);
 
-dislikeCardRouter.delete('/cards/:cardId/likes', dislikeCard);
+dislikeCardRouter.delete('/cards/:cardId/likes', 
+celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().alphanum().length(24)
+  }),
+}),
+dislikeCard);
 
 module.exports = {getCardsRouter, createCardRrouter, deleteCardByIdRouter, likeCardRouter, dislikeCardRouter};

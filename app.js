@@ -1,31 +1,37 @@
 const express = require('express');
 const { PORT = 3000 } = process.env;
 const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser');
 const app = express();
 const bodyParser = require('body-parser');
+const auth = require('./middlewares/auth');
+const { errors } = require('celebrate');
 
 process.on('uncaughtException', (err, origin) => {
    console.log(`${origin} ${err.name} c текстом ${err.message} не была обработана. Обратите внимание!`);
 });
 
 const router = require('./routes/users.js');
-const {getUsersRouter, getUserByIdRrouter, createUserRouter, updateUserRouter, updateUserAvatarRouter} = require('./routes/users.js');
+const {getUsersRouter, getUserByIdRrouter, createUserRouter, updateUserRouter, updateUserAvatarRouter, loginRouter} = require('./routes/users.js');
 const {getCardsRouter, createCardRrouter, deleteCardByIdRouter, likeCardRouter, dislikeCardRouter} = require('./routes/cards.js');
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true
 });
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '64e9ca43d5399d0f2b11aa84' // вставьте сюда _id созданного в предыдущем пункте пользователя
-  };
-
-  next();
-});
 
 app.use(bodyParser.json()); // для собирания JSON-формата
 app.use(bodyParser.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
+app.use(cookieParser());
+
+app.post('/signin', loginRouter);
+
+app.post('/signup', createUserRouter);
+
+
+app.use(auth);
+
+
 app.use('/', createUserRouter);
 app.use('/', getUsersRouter);
 app.use('/', updateUserRouter);
@@ -42,7 +48,17 @@ app.use('*', (req, res) => {
   res.status(404).send({message:'Страница не найдена'})
 });
 
+app.use(errors());
 
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+
+  res.status(statusCode).send({
+    message: statusCode === 500
+    ? 'На сервере произошла ошибка 123'
+    : message 
+  });
+});
 
 app.listen(PORT, () => {
   // Если всё работает, консоль покажет, какой порт приложение слушает
