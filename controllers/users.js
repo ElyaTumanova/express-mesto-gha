@@ -3,41 +3,42 @@ const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const NotFoundError = require('../errors/not-found-err');
+const ServerError = require('../errors/server-error');
+const BadRequestError = require('../errors/bad-request-err');
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then(user => res.send(user))
     .catch((e) => {
       if (e instanceof mongoose.Error.CastError) {
-        const err = new Error('Несуществующий Id'); 
-        err.statusCode = 400;
-        next(err);
+        return next(new BadRequestError());
     //res.status(400).send({ message: 'Несуществующий Id' })
       }
-      return res.status(500).send({ message: 'На сервере произошла ошибка' })
+      return next(new ServerError())
+      //return res.status(500).send({ message: 'На сервере произошла ошибка' })
     });
 }; 
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then(user => {
       if(!user) {
-        //throw new NotFoundError('Пользователя с таким Id не существует1');
-        return res.status(404).send({ message: 'Пользователя с таким Id не существует1' })
+        return next(new NotFoundError())
+        //return res.status(404).send({ message: 'Пользователя с таким Id не существует1' })
       }        
       return res.send(user)})
       
     .catch((e) => {
       if (e instanceof mongoose.Error.CastError) {
-        //next(new NotFoundError('Пользователя с таким Id не существует2'))
-        //throw new NotFoundError('Пользователя с таким Id не существует2');
-        return res.status(400).send({ message: 'Пользователя с таким Id не существует2' })
+        return next(new BadRequestError())
+        //return res.status(400).send({ message: 'Пользователя с таким Id не существует2' })
       }
-      return res.status(500).send({ message: 'На сервере произошла ошибка3333' })
+      return next(new ServerError())
+      //return res.status(500).send({ message: 'На сервере произошла ошибка3333' })
     });
 }; 
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
   console.log('signup') 
 
@@ -45,7 +46,6 @@ module.exports.createUser = (req, res) => {
     .then(user => {
     console.log (user);
     if(user) {
-      console.log('hi')
       return res.status(409).send({ message: 'Пользователь с таким email уже зарегистрирован' })
     }})
 
@@ -55,41 +55,49 @@ module.exports.createUser = (req, res) => {
     .then(user => res.send({ name, about, avatar, email }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' })
+        return next(new BadRequestError());
+        //return res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' })
       }
-      return res.status(500).send({ message: 'На сервере произошла ошибка' })
+      return next(new ServerError())
+      //return res.status(500).send({ message: 'На сервере произошла ошибка' })
     });
 }; 
 
-module.exports.updateUser = (req, res) => {
+module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { name: name, about: about }, { runValidators: true, new: true})
     .then(user => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' })
+        return next(new BadRequestError())
+        //res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' })
       }
       if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: 'Пользователя с таким Id не существует' })
+        return next(new NotFoundError())
+        //res.status(404).send({ message: 'Пользователя с таким Id не существует' })
       }
-      return res.status(500).send({ message: 'На сервере произошла ошибка' })
+      return next(new ServerError())
+      //return res.status(500).send({ message: 'На сервере произошла ошибка' })
     });
 }
 
-module.exports.updateUserAvatar = (req, res) => {
+module.exports.updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { avatar: avatar },{ runValidators: true, new: true})
     .then(user => res.send({ data: user }))
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' })
+        return next(new BadRequestError())
+        //res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' })
       }
       if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        res.status(404).send({ message: 'Пользователя с таким Id не существует' })
+        return next(new NotFoundError())
+        //res.status(404).send({ message: 'Пользователя с таким Id не существует' })
       }
-      return res.status(500).send({ message: 'На сервере произошла ошибка' })
+      return next(new ServerError())
+      //return res.status(500).send({ message: 'На сервере произошла ошибка' })
     });
 }
 
@@ -120,18 +128,21 @@ module.exports.login = (req, res) => {
     });
 }
 
-module.exports.getMyUser = (req, res) => {
+module.exports.getMyUser = (req, res, next) => {
   User.findById(req.user._id)
     .then(user => {
       console.log (user);
       if(!user) {
-        res.status(404).send({ message: 'Пользователя с таким Id не существует' })
+        return next(new NotFoundError())
+        //res.status(404).send({ message: 'Пользователя с таким Id не существует' })
       }        
       res.send(user)})
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        res.status(400).send({ message: 'Пользователя с таким Id не существует' })
+        return next(new BadRequestError());
+        //res.status(400).send({ message: 'Пользователя с таким Id не существует' })
       }
-      return res.status(500).send({ message: 'На сервере произошла ошибка' })
+      return next(new ServerError())
+      //return res.status(500).send({ message: 'На сервере произошла ошибка' })
     });
 };
