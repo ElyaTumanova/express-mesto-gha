@@ -6,7 +6,7 @@ module.exports = (req, res, next) => {
   const { cookie } = req.headers;
 
   if (!cookie || !cookie.startsWith('jwt=')) {
-    return next(AuthError())
+    throw new AuthError()
     // return res
     //   .status(401)
     //   .send({ message: 'Необходима авторизация' });
