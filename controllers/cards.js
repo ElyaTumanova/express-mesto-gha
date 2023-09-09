@@ -77,9 +77,9 @@ module.exports.likeCard = (req, res, next) => {
       return next(BadRequestError());
       //res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятия лайка' })
     }
-    throw new ServerError();
+    return next (new ServerError());
     //return res.status(500).send({ message: 'На сервере произошла ошибка' })
-  });  
+  })
 }
 
 module.exports.dislikeCard = (req, res, next) => {
@@ -101,6 +101,6 @@ module.exports.dislikeCard = (req, res, next) => {
       //res.status(404).send({ message: 'Карточки с таким Id не существует' })
     }
     throw new ServerError();
-    //return res.status(500).send({ message: 'На сервере произошла ошибка' })
+    //return res.status(500).send({ message: 'На сервере произошла ошибка11' })
   });    
 }
