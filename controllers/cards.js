@@ -4,6 +4,7 @@ const { default: mongoose } = require('mongoose');
 const NotFoundError = require('../errors/not-found-err');
 const ServerError = require('../errors/server-error');
 const BadRequestError = require('../errors/bad-request-err');
+const ForbiddenRequestError = require('../errors/forbidden-err');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
@@ -22,7 +23,7 @@ module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body; 
 
   Card.create({ name, link, owner: req.user._id })
-    .then(card => res.send({ data: card }))
+    .then(card => res.status(201).send({ data: card }))
     .catch((err) => {
       console.log (err)
       if (err.name === 'ValidationError') {
@@ -43,7 +44,8 @@ module.exports.deleteCardById = (req, res, next) => {
       //res.status(404).send({ message: 'Карточки с таким Id не существует' })
     } else {
       if(card.owner.toString()!==req.user._id){
-        res.status(403).send({ message: 'Нелья удалить чужую карточку' })
+        return next(new ForbiddenRequestError());
+        //res.status(403).send({ message: 'Нелья удалить чужую карточку' })
       } else {
         Card.findByIdAndRemove(req.params.cardId,{ new: true })
         .then(card => {

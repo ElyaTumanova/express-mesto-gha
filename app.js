@@ -6,6 +6,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const auth = require('./middlewares/auth');
 const { errors } = require('celebrate');
+const errorHandler = require('./middlewares/error-handler');
 
 process.on('uncaughtException', (err, origin) => {
    console.log(`${origin} ${err.name} c текстом ${err.message} не была обработана. Обратите внимание!`);
@@ -14,6 +15,7 @@ process.on('uncaughtException', (err, origin) => {
 const router = require('./routes/users.js');
 const {getUsersRouter, getUserByIdRrouter, createUserRouter, updateUserRouter, updateUserAvatarRouter, loginRouter} = require('./routes/users.js');
 const {getCardsRouter, createCardRrouter, deleteCardByIdRouter, likeCardRouter, dislikeCardRouter} = require('./routes/cards.js');
+const PageNotFoundError = require('./errors/page-not-found-err');
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true
@@ -42,21 +44,14 @@ app.use('/', deleteCardByIdRouter);
 app.use('/', likeCardRouter);
 app.use('/', dislikeCardRouter);
 
-app.use('*', (req, res) => {
-  res.status(404).send({message:'Страница не найдена'})
+app.use('*', (req, res, next) => {
+  return next(PageNotFoundError())
+  //res.status(404).send({message:'Страница не найдена'})
 });
 
 app.use(errors());
 
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-
-  res.status(statusCode).send({
-    message: statusCode === 500
-    ? 'На сервере произошла ошибка123'
-    : message 
-  });
-});
+app.use(errorHandler); 
 
 app.listen(PORT, () => {
   // Если всё работает, консоль покажет, какой порт приложение слушает

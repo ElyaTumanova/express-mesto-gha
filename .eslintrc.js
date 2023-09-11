@@ -1,12 +1,11 @@
 module.exports = {
     "env": {
-        "browser": true,
+        "browser": false,
         "es2021": true,
         "node": true
     },
     "extends": [
         "eslint:recommended",
-        "plugin:react/recommended",
         "airbnb-base"
     ],
     "overrides": [
@@ -26,10 +25,8 @@ module.exports = {
         "ecmaVersion": "latest",
         "sourceType": "module"
     },
-    "plugins": [
-        "react"
-    ],
     "rules": {
-      "allow":"_id"
-    }
+      "no-underscore-dangle": ["error", { "allow": ["_id"]}]
+    },
+    "lint": "npx eslint . --fix"
 }
