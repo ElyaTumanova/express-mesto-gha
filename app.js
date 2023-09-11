@@ -45,7 +45,7 @@ app.use('/', likeCardRouter);
 app.use('/', dislikeCardRouter);
 
 app.use('*', (req, res, next) => {
-  return next(PageNotFoundError())
+  return next(new PageNotFoundError())
   //res.status(404).send({message:'Страница не найдена'})
 });
 
