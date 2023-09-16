@@ -2,8 +2,8 @@ class ConflictError extends Error {
   constructor(message) {
     super(message);
     this.statusCode = 409;
-    this.message = 'Пользователь с таким email уже зарегистрирован'
+    this.message = 'Пользователь с таким email уже зарегистрирован';
   }
 }
 
-module.exports = ConflictError; 
+module.exports = ConflictError;

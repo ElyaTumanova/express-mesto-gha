@@ -5,4 +5,4 @@ class LoginError extends Error {
   }
 }
 
-module.exports = LoginError; 
+module.exports = LoginError;

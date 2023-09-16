@@ -1,12 +1,14 @@
+/* eslint-disable no-console */
+/* eslint-disable consistent-return */
 const jwt = require('jsonwebtoken');
 const AuthError = require('../errors/auth-error');
 
 module.exports = (req, res, next) => {
-  console.log ('auth');
+  console.log('auth');
   const { cookie } = req.headers;
 
   if (!cookie || !cookie.startsWith('jwt=')) {
-    throw new AuthError()
+    throw new AuthError();
     // return res
     //   .status(401)
     //   .send({ message: 'Необходима авторизация' });
@@ -14,7 +16,7 @@ module.exports = (req, res, next) => {
 
   const token = cookie.replace('jwt=', '');
   let payload;
-  
+
   try {
     payload = jwt.verify(token, 'some-secret-key');
   } catch (e) {
@@ -27,4 +29,4 @@ module.exports = (req, res, next) => {
   req.user = payload; // записываем пейлоуд в объект запроса
 
   next(); // пропускаем запрос дальше
-};  
+};
